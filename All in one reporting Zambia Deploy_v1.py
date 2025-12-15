@@ -47,6 +47,15 @@ with st.sidebar:
 
 
 KPI_DICT = {
+        "2G": [
+        'Total Traffic Erlangs', 'Call Setup Success Rate',
+        'SDCCH BLOCKING RATE (%)', 'SDCCH Drop Rate(%)',
+        'TCH Blocking', 'HOSR_mapa',
+        'TCH availability ratio', 'Cell avail accuracy 1s cellL',
+        'TASR_contractual', 'DL cumulative quality ratio in class 5',
+        'Average SDCCH traffic', 'TCH Drop Rate',
+        'TOT_VOL_DATA_DOWNLOADED'
+    ]
     "3G": [
         'CS RRC Setup Success Rate', 'PS RRC Setup Success Rate',
         'CS and Video RAB Setup Success Rate', 'PS and HS RAB Setup Success Rate',
@@ -77,15 +86,7 @@ KPI_DICT = {
         'PRB util PDSCH', 'PRB util PUSCH',
         'NSA Adm rej R lack PUCCH rsrc'
     ],
-    "2G": [
-        'Total Traffic Erlangs', 'Call Setup Success Rate',
-        'SDCCH BLOCKING RATE (%)', 'SDCCH Drop Rate(%)',
-        'TCH Blocking', 'HOSR_mapa',
-        'TCH availability ratio', 'Cell avail accuracy 1s cellL',
-        'TASR_contractual', 'DL cumulative quality ratio in class 5',
-        'Average SDCCH traffic', 'TCH Drop Rate',
-        'TOT_VOL_DATA_DOWNLOADED'
-    ]
+
 }
 
 COLUMN_DICT = {
@@ -229,5 +230,6 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
 
