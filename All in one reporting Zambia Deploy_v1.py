@@ -188,12 +188,19 @@ def process_kpi(df, tech, available_kpis, cell_col):
             st.dataframe(pivot, use_container_width=True)
 
 
+# ===================== ABOUT =====================
 if selected == "About":
     st.markdown("## ℹ Tool Introduction")
     st.write(
-        "This tool automates **Day & Hour KPI aggregation** for "
-        "**2G / 3G / LTE / 5G**, enabling faster OSS-based analysis."
+        "This Multi-Tech Data Processing tool automates **Day & Hour level KPI aggregation** "
+        "for **Cell and PLMN views**, enabling faster and accurate OSS-based performance analysis."
     )
+    st.markdown("## 🚀 Key Capabilities")
+    st.markdown("""
+    - Day & Hour KPI aggregation  
+    - Cell & PLMN level analysis  
+    """)
+
 
 
 if selected == "Tool":
@@ -222,3 +229,4 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation"
         "**Email:** tomar.priyank@nokia.com"
     )
+
