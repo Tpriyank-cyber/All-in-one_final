@@ -47,7 +47,7 @@ with st.sidebar:
 
 
 KPI_DICT = {
-        "2G": [
+    "2G": [
         'Total Traffic Erlangs', 'Call Setup Success Rate',
         'SDCCH BLOCKING RATE (%)', 'SDCCH Drop Rate(%)',
         'TCH Blocking', 'HOSR_mapa',
@@ -230,6 +230,7 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
 
 
