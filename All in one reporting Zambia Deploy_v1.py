@@ -55,7 +55,7 @@ KPI_DICT = {
         'TASR_contractual', 'DL cumulative quality ratio in class 5',
         'Average SDCCH traffic', 'TCH Drop Rate',
         'TOT_VOL_DATA_DOWNLOADED'
-    ]
+    ],
     "3G": [
         'CS RRC Setup Success Rate', 'PS RRC Setup Success Rate',
         'CS and Video RAB Setup Success Rate', 'PS and HS RAB Setup Success Rate',
@@ -230,6 +230,7 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
 
 
