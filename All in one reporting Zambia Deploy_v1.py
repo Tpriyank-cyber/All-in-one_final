@@ -226,7 +226,8 @@ if selected == "Contact Us":
     st.markdown("## 📞 Contact Us")
     st.write(
         "**Developer:** Priyank Tomar  \n"
-        "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation"
+        "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
