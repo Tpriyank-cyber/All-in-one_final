@@ -208,7 +208,7 @@ if selected == "Tool":
     st.markdown("## 📊 Multi-Tech Data Processing Application")
     st.write("**Developed by Priyank Tomar**")
 
-    for tech in ["3G", "LTE", "5G", "2G"]:
+    for tech in ["2G", "3G", "LTE", "5G"]:
         st.markdown(f"### 📂 Upload {tech} KPI File")
         file = st.file_uploader(f"{tech} File", type=["xlsx", "xls"], key=tech)
 
@@ -230,6 +230,7 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
 
 
