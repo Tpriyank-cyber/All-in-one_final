@@ -45,31 +45,46 @@ with st.sidebar:
         }
     )
 
-# ===================== KPI LISTS =====================
+
 KPI_DICT = {
     "3G": [
-        'CS RRC Setup Success Rate', 'PS RRC Setup Success Rate', 'CS and Video RAB Setup Success Rate',
-        'PS and HS RAB Setup Success Rate', 'CS_drop_rate', 'HS Drop Call Rate', 'Act HS-DSCH  end usr thp',
-        'Cell Availability, excluding blocked by user state (BLU)', 'Total CS traffic - Erl', 'Max simult HSDPA users',
-        'Total_Data_Payload_DL_UL', 'Soft HO Success rate, RT', 'Average RTWP'
+        'CS RRC Setup Success Rate', 'PS RRC Setup Success Rate',
+        'CS and Video RAB Setup Success Rate', 'PS and HS RAB Setup Success Rate',
+        'CS_drop_rate', 'HS Drop Call Rate', 'Act HS-DSCH  end usr thp',
+        'Cell Availability, excluding blocked by user state (BLU)',
+        'Total CS traffic - Erl', 'Max simult HSDPA users',
+        'Total_Data_Payload_DL_UL', 'Soft HO Success rate, RT',
+        'Average RTWP'
     ],
     "LTE": [
-        'Cell Avail excl BLU', 'Total E-UTRAN RRC conn stp SR', 'E-UTRAN E-RAB stp SR', 'E-RAB DR RAN',
-        'E-UTRAN Avg PRB usage per TTI DL', 'Average CQI', 'Avg RRC conn UE', 'Avg IP thp DL QCI9',
-        'Total LTE data volume, DL + UL', 'Avg UE distance', 'Intra eNB HO SR',
+        'Cell Avail excl BLU', 'Total E-UTRAN RRC conn stp SR',
+        'E-UTRAN E-RAB stp SR', 'E-RAB DR RAN',
+        'E-UTRAN Avg PRB usage per TTI DL', 'Average CQI',
+        'Avg RRC conn UE', 'Avg IP thp DL QCI9',
+        'Total LTE data volume, DL + UL',
+        'Avg UE distance', 'Intra eNB HO SR',
         'E-UTRAN Intra-Freq HO SR', 'E-UTRAN Inter-Freq HO SR'
     ],
     "5G": [
-        'MAC SDU data vol trans DL DTCH', 'MAC SDU data vol rcvd UL DTCH', 'Cell avail exclud BLU',
-        'Max nr NSA user', 'NSA Avg nr user', 'Sched MAC PDU user thp PDSCH prb util', 'Sched MAC PDU user thp PUSCH prb util',
-        'NSA call access', 'SgNB add prep SR', 'SgNB t abn rel R excl X2 rst', 'Inafreq inaDU PSC chg tot SR',
-        'IntergNB HO SR NSA', 'Avg wb CQI 256QAM', 'PRB util PDSCH', 'PRB util PUSCH', 'NSA Adm rej R lack PUCCH rsrc'
+        'MAC SDU data vol trans DL DTCH', 'MAC SDU data vol rcvd UL DTCH',
+        'Cell avail exclud BLU', 'Max nr NSA user',
+        'NSA Avg nr user', 'Sched MAC PDU user thp PDSCH prb util',
+        'Sched MAC PDU user thp PUSCH prb util',
+        'NSA call access', 'SgNB add prep SR',
+        'SgNB t abn rel R excl X2 rst',
+        'Inafreq inaDU PSC chg tot SR',
+        'IntergNB HO SR NSA', 'Avg wb CQI 256QAM',
+        'PRB util PDSCH', 'PRB util PUSCH',
+        'NSA Adm rej R lack PUCCH rsrc'
     ],
     "2G": [
-        'Total Traffic Erlangs', 'Call Setup Success Rate', 'SDCCH BLOCKING RATE (%)',
-        'SDCCH Drop Rate(%)', 'TCH Blocking', 'HOSR_mapa', 'TCH availability ratio',
-        'Cell avail accuracy 1s cellL', 'TASR_contractual', 'DL cumulative quality ratio in class 5',
-        'Average SDCCH traffic', 'TCH Drop Rate', 'TOT_VOL_DATA_DOWNLOADED'
+        'Total Traffic Erlangs', 'Call Setup Success Rate',
+        'SDCCH BLOCKING RATE (%)', 'SDCCH Drop Rate(%)',
+        'TCH Blocking', 'HOSR_mapa',
+        'TCH availability ratio', 'Cell avail accuracy 1s cellL',
+        'TASR_contractual', 'DL cumulative quality ratio in class 5',
+        'Average SDCCH traffic', 'TCH Drop Rate',
+        'TOT_VOL_DATA_DOWNLOADED'
     ]
 }
 
@@ -80,119 +95,130 @@ COLUMN_DICT = {
     "2G": "Segment Name"
 }
 
-# ===================== COMMON FUNCTIONS =====================
+SITE_COL_DICT = {
+    "2G": None,
+    "3G": "WBTS name",
+    "LTE": "MRBTS name",
+    "5G": "MRBTS name"
+}
+
+
 def safe_kpis(df, tech):
     available = [k for k in KPI_DICT[tech] if k in df.columns]
     df[available] = df[available].apply(pd.to_numeric, errors='coerce')
     return available
 
-def process_kpi(df, tech, available_kpis, cell_col):
-    unique_dates = df['Date'].nunique()
-    sheet_type = st.selectbox(f"Select Sheet Type for {tech}", ["BBH (Cell Day)", "Continue (Hour / Day)"], key=f"{tech}_sheet")
 
-    # -------- DAY CELL LEVEL --------
-    if sheet_type == "BBH (Cell Day)" and cell_col in df.columns:
-        pivot = pd.pivot_table(df, index=['MRBTS name', cell_col], columns='Date',
-                               values=available_kpis, aggfunc='sum')
+def process_kpi(df, tech, available_kpis, cell_col):
+    sheet_type = st.selectbox(
+        f"Select Sheet Type for {tech}",
+        ["BBH (Cell Day)", "Continue (Hour / Day)"],
+        key=f"{tech}_sheet"
+    )
+
+    site_col = SITE_COL_DICT.get(tech)
+
+    index_cols = []
+    if site_col and site_col in df.columns:
+        index_cols.append(site_col)
+
+    if cell_col not in df.columns:
+        st.error(f"❌ {tech}: Cell column '{cell_col}' not found")
+        return
+
+    index_cols.append(cell_col)
+
+    if 'Date' not in df.columns:
+        st.error("❌ Date column missing")
+        return
+
+    if sheet_type == "BBH (Cell Day)":
+        pivot = pd.pivot_table(
+            df,
+            index=index_cols,
+            columns='Date',
+            values=available_kpis,
+            aggfunc='sum'
+        )
+
         pivot = pivot.stack(level=0).reset_index()
-        pivot.rename(columns={'level_2': 'KPI NAME'}, inplace=True)
+        pivot.rename(columns={pivot.columns[len(index_cols)]: 'KPI NAME'}, inplace=True)
+
         st.success(f"✅ {tech} Day Cell Level KPI Generated")
         st.dataframe(pivot, use_container_width=True)
 
-    # -------- CONTINUE MODE --------
-    elif sheet_type == "Continue (Hour / Day)" and cell_col in df.columns:
+    else:
+        unique_dates = df['Date'].nunique()
+
         if unique_dates == 1:
-            pivot = pd.pivot_table(df, index=['MRBTS name', cell_col], columns=['Date', 'Hour'],
-                                   values=available_kpis, aggfunc='sum')
+            pivot = pd.pivot_table(
+                df,
+                index=index_cols,
+                columns=['Date', 'Hour'],
+                values=available_kpis,
+                aggfunc='sum'
+            )
+
             pivot = pivot.stack(level=0).reset_index()
-            pivot.rename(columns={'level_2': 'KPI NAME'}, inplace=True)
+            pivot.rename(columns={pivot.columns[len(index_cols)]: 'KPI NAME'}, inplace=True)
+
             st.success(f"✅ {tech} Hour Cell Level KPI Generated")
             st.dataframe(pivot, use_container_width=True)
+
         else:
             hour = st.number_input(f"Select Hour for {tech}", 0, 23, key=f"{tech}_hour")
             df_h = df[df["Hour"] == hour]
-            pivot = pd.pivot_table(df_h, index=['MRBTS name', cell_col], columns='Date',
-                                   values=available_kpis, aggfunc='sum')
+
+            if df_h.empty:
+                st.warning("⚠ No data for selected hour")
+                return
+
+            pivot = pd.pivot_table(
+                df_h,
+                index=index_cols,
+                columns='Date',
+                values=available_kpis,
+                aggfunc='sum'
+            )
+
             pivot = pivot.stack(level=0).reset_index()
-            pivot.rename(columns={'level_2': 'KPI NAME'}, inplace=True)
+            pivot.rename(columns={pivot.columns[len(index_cols)]: 'KPI NAME'}, inplace=True)
+
             st.success(f"✅ {tech} Hour {hour} KPI Generated")
             st.dataframe(pivot, use_container_width=True)
-    else:
-        st.error(f"❌ Invalid file structure or missing mandatory columns for {tech}")
 
-# ===================== ABOUT =====================
+
 if selected == "About":
     st.markdown("## ℹ Tool Introduction")
     st.write(
-        "This Multi-Tech Data Processing tool automates **Day & Hour level KPI aggregation** "
-        "for **Cell and PLMN views**, enabling faster and accurate OSS-based performance analysis."
+        "This tool automates **Day & Hour KPI aggregation** for "
+        "**2G / 3G / LTE / 5G**, enabling faster OSS-based analysis."
     )
-    st.markdown("## 🚀 Key Capabilities")
-    st.markdown("""
-    - Day & Hour KPI aggregation  
-    - Cell & PLMN level analysis  
-    - Automated KPI validation  
-    - Nokia-styled Streamlit UI  
-    """)
 
-# ===================== TOOL =====================
+
 if selected == "Tool":
     st.markdown("## 📊 Multi-Tech Data Processing Application")
     st.write("**Developed by Priyank Tomar**")
 
-    # --- 3G Upload ---
-    st.markdown("### 📂 Upload 3G KPI File")
-    df_3g = st.file_uploader("3G File", type=["xlsx", "xls"], key="3G")
-    if df_3g:
-        df_3g = pd.read_excel(df_3g)
-        df_3g.columns = df_3g.columns.str.strip()
-        df_3g['Period start time'] = pd.to_datetime(df_3g['Period start time'], errors='coerce')
-        df_3g["Date"] = df_3g["Period start time"].dt.date
-        df_3g["Hour"] = df_3g["Period start time"].dt.hour
-        available_kpis_3g = safe_kpis(df_3g, "3G")
-        process_kpi(df_3g, "3G", available_kpis_3g, COLUMN_DICT["3G"])
+    for tech in ["3G", "LTE", "5G", "2G"]:
+        st.markdown(f"### 📂 Upload {tech} KPI File")
+        file = st.file_uploader(f"{tech} File", type=["xlsx", "xls"], key=tech)
 
-    # --- LTE Upload ---
-    st.markdown("### 📂 Upload LTE KPI File")
-    df_lte = st.file_uploader("LTE File", type=["xlsx", "xls"], key="LTE")
-    if df_lte:
-        df_lte = pd.read_excel(df_lte)
-        df_lte.columns = df_lte.columns.str.strip()
-        df_lte['Period start time'] = pd.to_datetime(df_lte['Period start time'], errors='coerce')
-        df_lte["Date"] = df_lte["Period start time"].dt.date
-        df_lte["Hour"] = df_lte["Period start time"].dt.hour
-        available_kpis_lte = safe_kpis(df_lte, "LTE")
-        process_kpi(df_lte, "LTE", available_kpis_lte, COLUMN_DICT["LTE"])
+        if file:
+            df = pd.read_excel(file)
+            df.columns = df.columns.str.strip()
+            df['Period start time'] = pd.to_datetime(df['Period start time'], errors='coerce')
+            df["Date"] = df["Period start time"].dt.date
+            df["Hour"] = df["Period start time"].dt.hour
 
-    # --- 5G Upload ---
-    st.markdown("### 📂 Upload 5G KPI File")
-    df_5g = st.file_uploader("5G File", type=["xlsx", "xls"], key="5G")
-    if df_5g:
-        df_5g = pd.read_excel(df_5g)
-        df_5g.columns = df_5g.columns.str.strip()
-        df_5g['Period start time'] = pd.to_datetime(df_5g['Period start time'], errors='coerce')
-        df_5g["Date"] = df_5g["Period start time"].dt.date
-        df_5g["Hour"] = df_5g["Period start time"].dt.hour
-        available_kpis_5g = safe_kpis(df_5g, "5G")
-        process_kpi(df_5g, "5G", available_kpis_5g, COLUMN_DICT["5G"])
-        
-    # --- 2G Upload ---
-    st.markdown("### 📂 Upload 2G KPI File")
-    df_2g = st.file_uploader("2G File", type=["xlsx", "xls"], key="2G")
-    if df_2g:
-        df_2g = pd.read_excel(df_2g)
-        df_2g.columns = df_2g.columns.str.strip()
-        df_2g['Period start time'] = pd.to_datetime(df_2g['Period start time'], errors='coerce')
-        df_2g["Date"] = df_2g["Period start time"].dt.date
-        df_2g["Hour"] = df_2g["Period start time"].dt.hour
-        available_kpis_2g = safe_kpis(df_2g, "2G")
-        process_kpi(df_2g, "2G", available_kpis_2g, COLUMN_DICT["2G"])
+            available = safe_kpis(df, tech)
+            process_kpi(df, tech, available, COLUMN_DICT[tech])
 
-# ===================== CONTACT US =====================
+
 if selected == "Contact Us":
     st.markdown("## 📞 Contact Us")
     st.write(
         "**Developer:** Priyank Tomar  \n"
-        "**Domain:** 3G / LTE / 5G / OSS / KPI Automation  \n"
+        "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation"
         "**Email:** tomar.priyank@nokia.com"
     )
