@@ -69,7 +69,7 @@ KPI_DICT = {
         'Cell Avail excl BLU', 'Total E-UTRAN RRC conn stp SR',
         'E-UTRAN E-RAB stp SR', 'E-RAB DR RAN',
         'E-UTRAN Avg PRB usage per TTI DL', 'Average CQI',
-        'Avg RRC conn UE', 'Avg IP thp DL QCI9',
+        'Avg RRC conn UE', 'Avg IP thp DL QCI9', 'Non-GBR DL throughput',
         'Total LTE data volume, DL + UL',
         'Avg UE distance', 'Intra eNB HO SR',
         'E-UTRAN Intra-Freq HO SR', 'E-UTRAN Inter-Freq HO SR'
@@ -230,6 +230,7 @@ if selected == "Contact Us":
         "**Domain:** 2G / 3G / LTE / 5G / OSS / KPI Automation   \n"
         "**Email:** tomar.priyank@nokia.com"
     )
+
 
 
 
